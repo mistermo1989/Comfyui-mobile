@@ -7,8 +7,11 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceResponse;
 import android.graphics.Color;
 import android.view.Window;
+import android.util.Log;
 
 import androidx.webkit.WebViewAssetLoader;
 
@@ -42,9 +45,9 @@ public class MainActivity extends Activity {
         settings.setAllowContentAccess(false);
 
         webView.setWebViewClient(new WebViewClient() {
+
             @Override
-            public android.webkit.WebResourceResponse
-            shouldInterceptRequest(
+            public WebResourceResponse shouldInterceptRequest(
                 WebView view,
                 WebResourceRequest request
             ) {
@@ -52,9 +55,32 @@ public class MainActivity extends Activity {
                     request.getUrl()
                 );
             }
+
+            @Override
+            public void onReceivedError(
+                WebView view,
+                WebResourceRequest request,
+                WebResourceError error
+            ) {
+                Log.e(
+                    "ComfyUI-WebView",
+                    "Load error: " + error.getDescription()
+                );
+            }
         });
 
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(
+                android.webkit.ConsoleMessage message
+            ) {
+                Log.e(
+                    "ComfyUI-JS",
+                    message.message()
+                );
+                return true;
+            }
+        });
 
         setContentView(webView);
 
@@ -70,5 +96,14 @@ public class MainActivity extends Activity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (webView != null) {
+            webView.destroy();
+            webView = null;
+        }
+        super.onDestroy();
     }
 }
