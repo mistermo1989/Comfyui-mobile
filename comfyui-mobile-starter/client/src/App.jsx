@@ -626,8 +626,21 @@ export default function App() {
         )}
       </main>
 
+      
       <nav className="bottom-nav">
         {nav.map(([name, Icon]) => (
           <button
             className={tab === name ? 'active' : ''}
+            key={name}
+            onClick={() => setTab(name)}
+          >
+            <Icon size={19} />
+            <small>{name}</small>
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
        
